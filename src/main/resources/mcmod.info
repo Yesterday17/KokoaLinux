@@ -1,0 +1,16 @@
+[
+{
+  "modid": "kokoalinux",
+  "name": "KokoaLinux",
+  "description": "IME solution for Minecraft under Linux.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/Yesterday17/KokoaLinux",
+  "updateUrl": "",
+  "authorList": ["Yesterday17"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
