@@ -7,10 +7,9 @@ It tweaks lwjgl when game starts. So it's much easier to install.
 
 This Mod is licensed under [MMPL](LICENSE), the same as CocoaInput.
 
-## Known issue
-- Switching between **fullscreen** will make IME unavailable(It doesn't crash the game now). If you want to use IME, **don't enter fullscreen mode**.
-- Type shortly. Don't type a whole sentence with your IME and input to Minecraft all at once, or it will **crash your game**(Tested with Mozc).
-- If somewhere you input has length limit (for example, world name) and you continue typing with IME, what displays on the screen may be strange.
+## Known issues
+- Type shortly. Don't type a whole sentence with your IME and input to Minecraft all at once, or it will **crash your game**(Tested with Mozc, maybe a CocoaInput bug).
+- If somewhere you input has length limit (for example, world name) and you continue typing with IME, what displays on the screen may be strange (seems caused by the implementation of CocoaInput to show underscore).
 
 ## Debug and Build
 ### Debug

@@ -5,22 +5,36 @@ import cn.yesterday17.kokoalinux.display.DisplayHelper;
 import org.apache.logging.log4j.Level;
 
 public class InputHelper {
-    public static void createActivateIC() {
-        long xim = DisplayHelper.getXIM(),
+    public static void createIC(boolean toActivate) {
+        long xic,
+                xim = DisplayHelper.getXIM(),
                 window = DisplayHelper.getCurrentWindow();
-        long xic = InputNative.instance.createActiveIC(xim, window);
-        KokoaLinux.logger.printf(Level.DEBUG, "Activate XIC: %d", xic);
-        DisplayHelper.setXIC(xic);
+        if (toActivate) {
+            xic = InputNative.instance.createActiveIC(xim, window);
 
-        if (xic == 0) {
-            KokoaLinux.logger.printf(Level.DEBUG, "xim: %d, window: %d", xim, window);
+            if (xic == 0) {
+                // Current XIM is not available, so NULL is returned
+                // Sp close current XIM and open a new one
+                // Also, Locale is reset, So we MUST prepareLocale again
+                DisplayHelper.closeLWJGLIM();
+                InputHelper.prepareLocale();
+                xim = InputHelper.openIM();
+                xic = InputNative.instance.createActiveIC(xim, window);
+            }
+
+            KokoaLinux.logger.printf(Level.DEBUG, "Activate XIC: %d", xic);
+        } else {
+            xic = InputNative.instance.createInactiveIC(xim, window);
+            KokoaLinux.logger.printf(Level.DEBUG, "Inactivate XIC: %d", xic);
         }
-    }
-
-    public static void createInactiveIC() {
-        long xic = InputNative.instance.createInactiveIC(DisplayHelper.getXIM(), DisplayHelper.getCurrentWindow());
-        KokoaLinux.logger.printf(Level.DEBUG, "Inactivate XIC: %d", xic);
         DisplayHelper.setXIC(xic);
+
+        // Unexpected situation
+        if (xic == 0) {
+            KokoaLinux.logger.error("Unexpected zero XIC when creating IC");
+            KokoaLinux.logger.printf(Level.ERROR, "XIM: %d", xim);
+            KokoaLinux.logger.printf(Level.ERROR, "Window: %d", window);
+        }
     }
 
     public static void prepareLocale() {
@@ -34,8 +48,14 @@ public class InputHelper {
         InputNative.instance.destroyIC(xic);
     }
 
-    public static void openIM() {
+    public static long openIM() {
         long xim = InputNative.instance.openIM(DisplayHelper.getDisplay());
         DisplayHelper.setXIM(xim);
+        return xim;
+    }
+
+    public static void closeIM() {
+        InputNative.instance.closeIM(DisplayHelper.getXIM());
+        DisplayHelper.setXIM(0);
     }
 }

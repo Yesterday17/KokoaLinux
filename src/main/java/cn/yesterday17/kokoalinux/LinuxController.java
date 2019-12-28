@@ -50,7 +50,7 @@ public class LinuxController implements Controller {
 
         InputHelper.prepareLocale();
         InputHelper.openIM();
-        InputHelper.createInactiveIC();
+        InputHelper.createIC(false);
 
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -65,7 +65,7 @@ public class LinuxController implements Controller {
         if (!currentGuiIsIMEReceiver) {
             KokoaLinux.logger.debug("GUI");
             InputHelper.destroyIC();
-            InputHelper.createInactiveIC();
+            InputHelper.createIC(false);
             Focus.release();
         }
     }

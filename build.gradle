@@ -15,7 +15,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: "com.wynprice.cursemaven"
 
-version = "1.1.0"
+version = "1.1.1"
 group = "cn.yesterday17"
 archivesBaseName = "kokoalinux"
 

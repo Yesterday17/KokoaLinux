@@ -78,20 +78,6 @@ void preeditDraw(XIC xic, XPointer clientData, XIMPreeditDrawCallbackStruct *str
     XFree(attr);
 }
 
-void statusStart(XIC xic, XPointer clientData, XPointer data) {
-    printf("start\n");
-    fflush(stdout);
-}
-
-void statusDone(XIC xic, XPointer clientData, XPointer data) {
-    printf("done\n");
-    fflush(stdout);
-}
-
-void statusDraw(XIC xic, XPointer clientData, XPointer data, XIMStatusDrawCallbackStruct *structure) {
-    printf("draw\n");
-    fflush(stdout);
-}
 
 XICCallback calet, start, done, draw;
 
@@ -107,7 +93,7 @@ XVaNestedList preeditCallbacksList() {
 
     calet.client_data = NULL;
     calet.callback = preeditCalet;
-    return XVaCreateNestedList(0,
+    return XVaCreateNestedList(0, // DUMMY
                                XNPreeditStartCallback,
                                &start,
                                XNPreeditDoneCallback,
@@ -115,26 +101,8 @@ XVaNestedList preeditCallbacksList() {
                                XNPreeditDrawCallback,
                                &draw,
                                XNPreeditCaretCallback,
-                               &calet, NULL);
-}
-
-
-XICCallback s_start, s_done, s_draw;
-
-XVaNestedList statusCallbacksList() {
-    s_start.client_data = NULL;
-    s_done.client_data = NULL;
-    s_draw.client_data = NULL;
-    s_start.callback = statusStart;
-    s_done.callback = statusDone;
-    s_draw.callback = statusDraw;
-    return XVaCreateNestedList(0,
-                               XNStatusStartCallback,
-                               &s_start,
-                               XNStatusDoneCallback,
-                               &s_done,
-                               XNStatusDrawCallback,
-                               &s_draw, NULL);
+                               &calet,
+                               NULL); // FINAL
 }
 
 long createInactiveIC(long xim, long window) {
@@ -162,8 +130,6 @@ long createActiveIC(long xim, long window) {
             XIMPreeditCallbacks | XIMStatusNothing,
             XNPreeditAttributes,
             preeditCallbacksList(),
-            XNStatusAttributes,
-            statusCallbacksList(),
             NULL);
     return (long) ic;
 }
@@ -172,24 +138,41 @@ void setLocale() {
     setlocale(LC_CTYPE, "");
 }
 
-
-// X11
+//////////////////////// X11 ////////////////////////
+/**
+ * Clear Locale Modifier
+ */
 void setEmptyLocaleModifier() {
     XSetLocaleModifiers("");
 }
 
+/**
+ * Destroy specified XIC
+ * This function assumes xic is valid, and protects deleting NULL pointer.
+ * @param xic Long form of XIC pointer
+ */
 void destroyIC(long xic) {
     if (xic != 0) {
         XDestroyIC((XIC) xic);
     }
 }
 
+/**
+ * Open IM for specified Display
+ * @param display
+ * @return Long form of opened XIM pointer.
+ */
+long openIM(long display) {
+    return (long) XOpenIM((Display *) display, NULL, NULL, NULL);
+}
+
+/**
+ * Close specified XIM
+ * This function assumes xim is valid, and protects deleting NULL pointer.
+ * @param xim Long form of XIM pointer
+ */
 void closeIM(long xim) {
     if (xim != 0) {
         XCloseIM((XIM) xim);
     }
-}
-
-long openIM(long display) {
-    return (long) XOpenIM((Display *) display, NULL, NULL, NULL);
 }

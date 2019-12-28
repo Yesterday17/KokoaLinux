@@ -21,12 +21,7 @@ public class LinuxIMEOperator implements IMEOperator {
         KokoaLinux.logger.debug("FOCUS");
         InputHelper.destroyIC();
 
-        if (focused) {
-            Focus.focus(this);
-            InputHelper.createActivateIC();
-        } else {
-            Focus.release(this);
-            InputHelper.createInactiveIC();
-        }
+        Focus.operate(this, focused);
+        InputHelper.createIC(focused);
     }
 }

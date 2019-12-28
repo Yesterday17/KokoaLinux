@@ -30,3 +30,4 @@ libkokoa/*.cmake
 libkokoa/*.so
 libkokoa/Makefile
 libkokoa/*Cache*
+libkokoa/*.cbp

@@ -3,7 +3,7 @@ package cn.yesterday17.kokoalinux;
 class Focus {
     private static LinuxIMEOperator focused = null;
 
-    static void focus(LinuxIMEOperator op) {
+    private static void focus(LinuxIMEOperator op) {
         focused = op;
     }
 
@@ -11,9 +11,17 @@ class Focus {
         focused = null;
     }
 
-    static void release(LinuxIMEOperator op) {
+    private static void release(LinuxIMEOperator op) {
         if (op == focused) {
             release();
+        }
+    }
+
+    static void operate(LinuxIMEOperator op, boolean isFocused) {
+        if (isFocused) {
+            focus(op);
+        } else {
+            release(op);
         }
     }
 
