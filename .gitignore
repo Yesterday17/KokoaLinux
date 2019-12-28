@@ -23,3 +23,10 @@ run
 
 # lib
 lib/*.jar
+
+# native shared library
+libkokoa/CMakeFiles
+libkokoa/*.cmake
+libkokoa/*.so
+libkokoa/Makefile
+libkokoa/*Cache*

@@ -3,13 +3,13 @@ package cn.yesterday17.kokoalinux;
 import cn.yesterday17.kokoalinux.display.DisplayHelper;
 import cn.yesterday17.kokoalinux.input.InputHelper;
 import cn.yesterday17.kokoalinux.input.InputNative;
-import cn.yesterday17.kokoalinux.x11.X11Helper;
-import cn.yesterday17.kokoalinux.x11.X11Native;
 import com.Axeryok.CocoaInput.plugin.Controller;
 import com.Axeryok.CocoaInput.plugin.IMEOperator;
 import com.Axeryok.CocoaInput.plugin.IMEReceiver;
 import com.sun.jna.Memory;
+import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.Display;
 
 import java.lang.reflect.Field;
@@ -44,14 +44,12 @@ public class LinuxController implements Controller {
             e.printStackTrace();
         }
 
-        X11Native.instance.XSetLocaleModifiers("");
-        InputNative.instance.setLocale();
-
         // Destroy original IC & IMC
-        DisplayHelper.destroyIC();
-        DisplayHelper.closeIM();
+        DisplayHelper.destroyLWJGLIC();
+        DisplayHelper.closeLWJGLIM();
 
-        X11Helper.OpenIM();
+        InputHelper.prepareLocale();
+        InputHelper.openIM();
         InputHelper.createInactiveIC();
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -59,5 +57,16 @@ public class LinuxController implements Controller {
 
     public IMEOperator generateIMEOperator(IMEReceiver owner) {
         return new LinuxIMEOperator(owner);
+    }
+
+    @SubscribeEvent
+    public void didChangeGui(GuiOpenEvent event) {
+        boolean currentGuiIsIMEReceiver = event.getGui() instanceof IMEReceiver;
+        if (!currentGuiIsIMEReceiver) {
+            KokoaLinux.logger.debug("GUI");
+            InputHelper.destroyIC();
+            InputHelper.createInactiveIC();
+            Focus.release();
+        }
     }
 }

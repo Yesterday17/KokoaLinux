@@ -7,11 +7,11 @@ import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
 public interface InputNative extends Library {
-    InputNative instance = Native.loadLibrary("kokoalinux", InputNative.class);
+    InputNative instance = Native.loadLibrary("kokoa", InputNative.class);
 
-    long createDeactiveIC(long xim, long currentWindow, long display);
+    long createInactiveIC(long xim, long currentWindow);
 
-    long createActiveIC(long xim, long currentWindow, long display);
+    long createActiveIC(long xim, long currentWindow);
 
     void setLocale();
 
@@ -24,4 +24,13 @@ public interface InputNative extends Library {
     interface DrawCallback extends Callback {
         Pointer invoke(int param1Int1, int param1Int2, int param1Int3, short param1Short, boolean param1Boolean, String param1String, WString param1WString, int param1Int4, int param1Int5, int param1Int6);
     }
+
+    // X11
+    void destroyIC(long xic);
+
+    void closeIM(long xim);
+
+    long openIM(long display);
+
+    void setEmptyLocaleModifier();
 }

@@ -2,16 +2,24 @@
 
 KokoaLinux is an IME solution for Minecraft under Linux, requiring [CocoaInput](https://www.curseforge.com/minecraft/mc-mods/cocoainput).  
 Based on [CocoaInputLinux](https://www.axer.jp/archives/61) and with the help of Axeryok's [blog](https://www.axer.jp/archives/59), I finally made this mod.  
-It tweaks lwjgl when game starts and works good.  
+It tweaks lwjgl when game starts. So it's much easier to install.
+
+
+This Mod is licensed under [MMPL](LICENSE), the same as CocoaInput.
 
 ## Known issue
-- Switching between **fullscreen** mode and use IME after that may cause game crash. Don't use FullScreen mode.
+- Switching between **fullscreen** will make IME unavailable(It doesn't crash the game now). If you want to use IME, **don't enter fullscreen mode**.
+- Type shortly. Don't type a whole sentence with your IME and input to Minecraft all at once, or it will **crash your game**(Tested with Mozc).
+- If somewhere you input has length limit (for example, world name) and you continue typing with IME, what displays on the screen may be strange.
 
-## TODOs
-1. Implement native methods, and don't depend on `libcocoainput` any longer.
-1. Fix full screen issue.
+## Debug and Build
+### Debug
+I didn't find a way to debug a LaunchWrapper Tweaker directly with IDEA. PR is welcomed if you've found how to debug.
 
-## How To Use CocoaInput Linux Alpha 0.0.0?
+### Build
+You need to build both libkokoa and KokoaLinux. So I prepared [build.sh] for doing that. Also, PR is welcomed if you're familiar with Gradle and can embed this procedure.
+
+## Additional Reading: How To Use CocoaInput Linux Alpha 0.0.0?
 
 ### Notice
 There is a part for both vanilla launcher users and others: CocoaInput 3.1.5 + CocoaInput Linux will **absolutely** crash your game. That's because Axeryok made instance of CocoaInput private, which made CocoaInput Linux impossible to get it without using reflection.  

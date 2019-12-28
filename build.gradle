@@ -2,14 +2,20 @@ buildscript {
     repositories {
         jcenter()
         maven { url = "https://files.minecraftforge.net/maven" }
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.0.0"
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "com.wynprice.cursemaven"
+
+version = "1.1.0"
 group = "cn.yesterday17"
 archivesBaseName = "kokoalinux"
 
@@ -27,7 +33,7 @@ minecraft {
 }
 
 dependencies {
-    implementation files('lib/CocoaInput-[1.9-1.12.2]-3.1.5.jar')
+    compile "curse.maven:cocoainput:2540534"
 }
 
 jar {
@@ -37,8 +43,8 @@ jar {
         ])
     }
 
-    from('linux-x86-64') {
-        into 'linux-x86-64'
+    from('libkokoa') {
+        include 'libkokoa.so' into 'linux-x86-64'
     }
 }
 

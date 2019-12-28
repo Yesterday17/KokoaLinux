@@ -4,10 +4,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
-import cn.yesterday17.kokoalinux.KokoaLinux;
-import cn.yesterday17.kokoalinux.x11.X11Helper;
-import com.sun.jna.Pointer;
-import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.Display;
 
 public class DisplayHelper {
@@ -64,12 +60,6 @@ public class DisplayHelper {
         return instance.display;
     }
 
-    public static Pointer getDisplayPointer() {
-        long d = getDisplay();
-        KokoaLinux.logger.printf(Level.DEBUG, "display pointer value: %d", d);
-        return new Pointer(d);
-    }
-
     public static long getCurrentWindow() {
         refresh();
         return instance.currentWindow;
@@ -111,7 +101,7 @@ public class DisplayHelper {
         }
     }
 
-    public static void destroyIC() {
+    public static void destroyLWJGLIC() {
         refresh();
         if (instance.xic == 0) return;
 
@@ -124,7 +114,7 @@ public class DisplayHelper {
         }
     }
 
-    public static void closeIM() {
+    public static void closeLWJGLIM() {
         refresh();
         if (instance.xic == 0) return;
 

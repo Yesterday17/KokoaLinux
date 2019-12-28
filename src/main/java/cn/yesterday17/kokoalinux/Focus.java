@@ -1,13 +1,13 @@
 package cn.yesterday17.kokoalinux;
 
-public class Focus {
+class Focus {
     private static LinuxIMEOperator focused = null;
 
     static void focus(LinuxIMEOperator op) {
         focused = op;
     }
 
-    public static void release() {
+    static void release() {
         focused = null;
     }
 
@@ -17,7 +17,7 @@ public class Focus {
         }
     }
 
-    public static boolean isFocused() {
+    static boolean isFocused() {
         return focused != null;
     }
 
