@@ -1,5 +1,6 @@
 package cn.yesterday17.kokoalinux.kokoa;
 
+import cn.yesterday17.kokoalinux.KokoaLinux;
 import com.Axeryok.CocoaInput.plugin.IMEOperator;
 import com.Axeryok.CocoaInput.plugin.IMEReceiver;
 
@@ -17,19 +18,15 @@ public class LinuxIMEOperator implements IMEOperator {
     }
 
     public void setFocused(boolean focused) {
-        X11Native.instance.XDestroyIC(DisplayHelper.getXICPointer());
-        long xic;
+        KokoaLinux.logger.fatal("FOCUS");
+        X11Helper.DestroyICIfExist();
 
         if (focused) {
-            LinuxController.focusedOperator = this;
-            xic = InputNative.instance.createActiveIC(DisplayHelper.getXIM(), DisplayHelper.getCurrentWindow(), DisplayHelper.getDisplay());
+            Focus.focus(this);
+            InputHelper.ActivateIC();
         } else {
-            if (LinuxController.focusedOperator == this) {
-                LinuxController.focusedOperator = null;
-            }
-            xic = InputNative.instance.createDeactiveIC(DisplayHelper.getXIM(), DisplayHelper.getCurrentWindow(), DisplayHelper.getDisplay());
+            Focus.release(this);
+            InputHelper.DeactivateIC();
         }
-
-        DisplayHelper.setXIC(xic);
     }
 }

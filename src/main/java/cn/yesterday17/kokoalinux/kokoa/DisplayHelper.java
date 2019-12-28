@@ -3,20 +3,22 @@ package cn.yesterday17.kokoalinux.kokoa;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import cn.yesterday17.kokoalinux.KokoaLinux;
 import com.sun.jna.Pointer;
+import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.Display;
 
-public class DisplayHelper {
-    private static DisplayHelper instance;
+class DisplayHelper {
+    static DisplayHelper instance;
 
     private Object keyboard; // LinuxKeyboard
 
     // Current X11 Display pointer
-    private long display;
-    private long currentWindow;
+    long display;
+    long currentWindow;
 
-    private long xim;
-    private long xic;
+    long xim;
+    long xic;
 
     private DisplayHelper() {
         try {
@@ -53,11 +55,23 @@ public class DisplayHelper {
 
     private static void refresh() {
         instance = new DisplayHelper();
+        if (instance.xim == 0) {
+            X11Helper.OpenIM();
+        }
+        if (instance.xim != 0 && instance.xic == 0) {
+            instance.xic = createIC();
+        }
     }
 
     static long getDisplay() {
         refresh();
         return instance.display;
+    }
+
+    static Pointer getDisplayPointer() {
+        long d = getDisplay();
+        KokoaLinux.logger.printf(Level.DEBUG, "display pointer value: %d", d);
+        return new Pointer(d);
     }
 
     static long getCurrentWindow() {
@@ -84,10 +98,6 @@ public class DisplayHelper {
     static long getXIC() {
         refresh();
         return instance.xic;
-    }
-
-    static Pointer getXICPointer() {
-        return new Pointer(getXIC());
     }
 
     static void setXIC(long ptr) {
@@ -124,20 +134,18 @@ public class DisplayHelper {
         }
     }
 
-    public long createIC(long xim, long window) {
-        refresh();
+    private static long createIC() {
         try {
             Method method = instance.keyboard.getClass().getDeclaredMethod("createIC", long.class, long.class);
             method.setAccessible(true);
-            return (Long) method.invoke(null, new Object[]{xim, window});
+            return (Long) method.invoke(null, new Object[]{instance.xim, instance.currentWindow});
         } catch (Exception e) {
             e.printStackTrace();
             return 0L;
         }
     }
 
-    public void setupIMEventMask(long display, long window, long xic) {
-        refresh();
+    public static void setupIMEventMask(long display, long window, long xic) {
         try {
             Method method = instance.keyboard.getClass().getDeclaredMethod("setupIMEventMask", long.class, long.class, long.class);
             method.setAccessible(true);

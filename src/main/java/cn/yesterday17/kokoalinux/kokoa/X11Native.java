@@ -11,5 +11,7 @@ public interface X11Native extends Library {
 
     Pointer XOpenIM(Pointer display, Pointer xrmDatabase, String mut_1, String mut_2);
 
+    long XCreateIC(Pointer paramPointer);
+
     void XDestroyIC(Pointer paramPointer);
 }

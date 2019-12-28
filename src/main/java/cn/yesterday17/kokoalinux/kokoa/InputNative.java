@@ -11,9 +11,9 @@ public interface InputNative extends Library {
 
     void update(long paramLong1, long paramLong2);
 
-    long createDeactiveIC(long paramLong1, long paramLong2, long paramLong3);
+    long createDeactiveIC(long xim, long currentWindow, long display);
 
-    long createActiveIC(long paramLong1, long paramLong2, long paramLong3);
+    long createActiveIC(long xim, long currentWindow, long display);
 
     void setLocale();
 

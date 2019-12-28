@@ -49,7 +49,7 @@ public class Tweaker implements ITweaker {
             // Register Transformer
             classLoader.registerTransformer("cn.yesterday17.kokoalinux.lwjgl.Transformer");
 
-            //
+            // Add Mod
             FMLInjectionData.containers.add("cn.yesterday17.kokoalinux.KokoaLinux");
         } catch (NoSuchFieldException | IllegalAccessException e) {
             e.printStackTrace();

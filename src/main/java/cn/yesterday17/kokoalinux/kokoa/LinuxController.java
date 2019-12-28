@@ -1,11 +1,10 @@
 package cn.yesterday17.kokoalinux.kokoa;
 
+import cn.yesterday17.kokoalinux.KokoaLinux;
 import com.Axeryok.CocoaInput.plugin.Controller;
 import com.Axeryok.CocoaInput.plugin.IMEOperator;
 import com.Axeryok.CocoaInput.plugin.IMEReceiver;
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,14 +13,12 @@ import org.lwjgl.opengl.Display;
 import java.lang.reflect.Field;
 
 public class LinuxController implements Controller {
-    static LinuxIMEOperator focusedOperator = null;
-
     public LinuxController() {
         InputNative.instance.setCallback(
                 (caret, chg_first, chg_length, length, iswstring, rawstring, rawwstring, primary, secondary, tertiary) -> {
                     String string = iswstring ? rawwstring.toString() : rawstring;
-                    if (LinuxController.focusedOperator != null) {
-                        LinuxController.focusedOperator.owner.setMarkedText(string, secondary, tertiary - secondary, 0, 0);
+                    if (Focus.isFocused()) {
+                        Focus.op().owner.setMarkedText(string, secondary, tertiary - secondary, 0, 0);
                     }
 
                     int[] point = {Display.getX(), Display.getY()};
@@ -30,9 +27,9 @@ public class LinuxController implements Controller {
                     return memory;
                 },
                 () -> {
-                    System.out.println("done");
-                    if (LinuxController.focusedOperator != null)
-                        LinuxController.focusedOperator.owner.insertText("", 0, 0);
+                    if (Focus.isFocused()) {
+                        Focus.op().owner.insertText("", 0, 0);
+                    }
                 }
         );
 
@@ -47,26 +44,30 @@ public class LinuxController implements Controller {
 
         X11Native.instance.XSetLocaleModifiers("");
         InputNative.instance.setLocale();
+
+        // Disable IM at first
         DisplayHelper.destroyIC();
         DisplayHelper.closeIM();
-        Pointer ptr = X11Native.instance.XOpenIM(new Pointer(DisplayHelper.getDisplay()), null, null, null);
-        DisplayHelper.setXIM(Pointer.nativeValue(ptr));
 
-        long xic = InputNative.instance.createDeactiveIC(DisplayHelper.getXIM(), DisplayHelper.getCurrentWindow(), DisplayHelper.getDisplay());
-        DisplayHelper.setXIC(xic);
+        X11Helper.OpenIM();
+        InputHelper.DeactivateIC();
 
         MinecraftForge.EVENT_BUS.register(this);
     }
 
+    private static boolean lastGuiIsIMEReceiver = false;
+
     @SubscribeEvent
     public void didChangeGui(GuiOpenEvent event) {
-        // TODO: Fix fullscreen input
-        if (!(event.getGui() instanceof IMEReceiver) && !Minecraft.getMinecraft().isFullScreen()) {
-            X11Native.instance.XDestroyIC(DisplayHelper.getXICPointer());
-            long xic = InputNative.instance.createDeactiveIC(DisplayHelper.getXIM(), DisplayHelper.getCurrentWindow(), DisplayHelper.getDisplay());
-            DisplayHelper.setXIC(xic);
-            focusedOperator = null;
+        // Situation: GUI switched from 'with imd' to 'no ime' and not focused
+        boolean currentGuiIsIMEReceiver = event.getGui() instanceof IMEReceiver;
+        if (lastGuiIsIMEReceiver && !currentGuiIsIMEReceiver && !Focus.isFocused()) {
+            KokoaLinux.logger.fatal("GUI");
+            X11Helper.DestroyICIfExist();
+            InputHelper.DeactivateIC();
+            Focus.release();
         }
+        lastGuiIsIMEReceiver = currentGuiIsIMEReceiver;
     }
 
     public IMEOperator generateIMEOperator(IMEReceiver owner) {

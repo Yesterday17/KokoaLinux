@@ -8,8 +8,10 @@ import net.minecraftforge.fml.common.DummyModContainer;
 import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.versioning.ArtifactVersion;
 import net.minecraftforge.fml.common.versioning.VersionParser;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -19,6 +21,8 @@ import java.util.List;
 public class KokoaLinux extends DummyModContainer {
     private static final String MOD_ID = "kokoalinux";
     private static final String NAME = "KokoaLinux";
+
+    public static Logger logger;
 
     public KokoaLinux() {
         super(new ModMetadata());
@@ -42,6 +46,12 @@ public class KokoaLinux extends DummyModContainer {
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
         return true;
+    }
+
+    @Subscribe
+    public void preInit(FMLPreInitializationEvent event) {
+        logger = event.getModLog();
+        logger.getLevel();
     }
 
     @Subscribe
