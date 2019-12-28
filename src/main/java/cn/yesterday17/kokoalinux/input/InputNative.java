@@ -1,4 +1,4 @@
-package cn.yesterday17.kokoalinux.kokoa;
+package cn.yesterday17.kokoalinux.input;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
@@ -7,9 +7,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.WString;
 
 public interface InputNative extends Library {
-    InputNative instance = Native.loadLibrary("cocoainput", InputNative.class);
-
-    void update(long paramLong1, long paramLong2);
+    InputNative instance = Native.loadLibrary("kokoalinux", InputNative.class);
 
     long createDeactiveIC(long xim, long currentWindow, long display);
 

@@ -1,6 +1,5 @@
 package cn.yesterday17.kokoalinux;
 
-import cn.yesterday17.kokoalinux.kokoa.LinuxController;
 import com.Axeryok.CocoaInput.CocoaInput;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;

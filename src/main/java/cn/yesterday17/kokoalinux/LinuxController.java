@@ -1,19 +1,21 @@
-package cn.yesterday17.kokoalinux.kokoa;
+package cn.yesterday17.kokoalinux;
 
-import cn.yesterday17.kokoalinux.KokoaLinux;
+import cn.yesterday17.kokoalinux.display.DisplayHelper;
+import cn.yesterday17.kokoalinux.input.InputHelper;
+import cn.yesterday17.kokoalinux.input.InputNative;
+import cn.yesterday17.kokoalinux.x11.X11Helper;
+import cn.yesterday17.kokoalinux.x11.X11Native;
 import com.Axeryok.CocoaInput.plugin.Controller;
 import com.Axeryok.CocoaInput.plugin.IMEOperator;
 import com.Axeryok.CocoaInput.plugin.IMEReceiver;
 import com.sun.jna.Memory;
-import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.Display;
 
 import java.lang.reflect.Field;
 
 public class LinuxController implements Controller {
-    public LinuxController() {
+    LinuxController() {
         InputNative.instance.setCallback(
                 (caret, chg_first, chg_length, length, iswstring, rawstring, rawwstring, primary, secondary, tertiary) -> {
                     String string = iswstring ? rawwstring.toString() : rawstring;
@@ -45,29 +47,14 @@ public class LinuxController implements Controller {
         X11Native.instance.XSetLocaleModifiers("");
         InputNative.instance.setLocale();
 
-        // Disable IM at first
+        // Destroy original IC & IMC
         DisplayHelper.destroyIC();
         DisplayHelper.closeIM();
 
         X11Helper.OpenIM();
-        InputHelper.DeactivateIC();
+        InputHelper.createInactiveIC();
 
         MinecraftForge.EVENT_BUS.register(this);
-    }
-
-    private static boolean lastGuiIsIMEReceiver = false;
-
-    @SubscribeEvent
-    public void didChangeGui(GuiOpenEvent event) {
-        // Situation: GUI switched from 'with imd' to 'no ime' and not focused
-        boolean currentGuiIsIMEReceiver = event.getGui() instanceof IMEReceiver;
-        if (lastGuiIsIMEReceiver && !currentGuiIsIMEReceiver && !Focus.isFocused()) {
-            KokoaLinux.logger.fatal("GUI");
-            X11Helper.DestroyICIfExist();
-            InputHelper.DeactivateIC();
-            Focus.release();
-        }
-        lastGuiIsIMEReceiver = currentGuiIsIMEReceiver;
     }
 
     public IMEOperator generateIMEOperator(IMEReceiver owner) {

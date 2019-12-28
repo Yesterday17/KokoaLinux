@@ -1,24 +1,26 @@
-package cn.yesterday17.kokoalinux.kokoa;
+package cn.yesterday17.kokoalinux.display;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import cn.yesterday17.kokoalinux.KokoaLinux;
+import cn.yesterday17.kokoalinux.x11.X11Helper;
 import com.sun.jna.Pointer;
 import org.apache.logging.log4j.Level;
 import org.lwjgl.opengl.Display;
 
-class DisplayHelper {
-    static DisplayHelper instance;
+public class DisplayHelper {
+    private static DisplayHelper instance;
 
     private Object keyboard; // LinuxKeyboard
 
     // Current X11 Display pointer
-    long display;
-    long currentWindow;
+    private long display;
+    private long currentWindow;
 
-    long xim;
-    long xic;
+    private long xim;
+    private long xic;
 
     private DisplayHelper() {
         try {
@@ -55,65 +57,64 @@ class DisplayHelper {
 
     private static void refresh() {
         instance = new DisplayHelper();
-        if (instance.xim == 0) {
-            X11Helper.OpenIM();
-        }
-        if (instance.xim != 0 && instance.xic == 0) {
-            instance.xic = createIC();
-        }
     }
 
-    static long getDisplay() {
+    public static long getDisplay() {
         refresh();
         return instance.display;
     }
 
-    static Pointer getDisplayPointer() {
+    public static Pointer getDisplayPointer() {
         long d = getDisplay();
         KokoaLinux.logger.printf(Level.DEBUG, "display pointer value: %d", d);
         return new Pointer(d);
     }
 
-    static long getCurrentWindow() {
+    public static long getCurrentWindow() {
         refresh();
         return instance.currentWindow;
     }
 
-    static long getXIM() {
+    public static long getXIM() {
         refresh();
         return instance.xim;
     }
 
-    static void setXIM(long ptr) {
-        refresh();
+    public static void setXIM(long ptr) {
         try {
             Field f = instance.keyboard.getClass().getDeclaredField("xim");
             f.setAccessible(true);
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
             f.setLong(instance.keyboard, ptr);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    static long getXIC() {
+    public static long getXIC() {
         refresh();
         return instance.xic;
     }
 
-    static void setXIC(long ptr) {
-        refresh();
+    public static void setXIC(long ptr) {
         try {
             Field f = instance.keyboard.getClass().getDeclaredField("xic");
             f.setAccessible(true);
+            Field modifiersField = Field.class.getDeclaredField("modifiers");
+            modifiersField.setAccessible(true);
+            modifiersField.setInt(f, f.getModifiers() & ~Modifier.FINAL);
             f.setLong(instance.keyboard, ptr);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-
-    static void destroyIC() {
+    public static void destroyIC() {
         refresh();
+        if (instance.xic == 0) return;
+
         try {
             Method method = instance.keyboard.getClass().getDeclaredMethod("destroyIC", long.class);
             method.setAccessible(true);
@@ -123,33 +124,14 @@ class DisplayHelper {
         }
     }
 
-    static void closeIM() {
+    public static void closeIM() {
         refresh();
+        if (instance.xic == 0) return;
+
         try {
             Method method = instance.keyboard.getClass().getDeclaredMethod("closeIM", long.class);
             method.setAccessible(true);
             method.invoke(null, instance.xim);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static long createIC() {
-        try {
-            Method method = instance.keyboard.getClass().getDeclaredMethod("createIC", long.class, long.class);
-            method.setAccessible(true);
-            return (Long) method.invoke(null, new Object[]{instance.xim, instance.currentWindow});
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0L;
-        }
-    }
-
-    public static void setupIMEventMask(long display, long window, long xic) {
-        try {
-            Method method = instance.keyboard.getClass().getDeclaredMethod("setupIMEventMask", long.class, long.class, long.class);
-            method.setAccessible(true);
-            method.invoke(null, display, window, xic);
         } catch (Exception e) {
             e.printStackTrace();
         }

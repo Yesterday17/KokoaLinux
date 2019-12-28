@@ -1,4 +1,4 @@
-package cn.yesterday17.kokoalinux.kokoa;
+package cn.yesterday17.kokoalinux.x11;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;

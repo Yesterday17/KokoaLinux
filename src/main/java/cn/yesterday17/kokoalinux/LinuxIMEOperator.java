@@ -1,6 +1,7 @@
-package cn.yesterday17.kokoalinux.kokoa;
+package cn.yesterday17.kokoalinux;
 
-import cn.yesterday17.kokoalinux.KokoaLinux;
+import cn.yesterday17.kokoalinux.input.InputHelper;
+import cn.yesterday17.kokoalinux.x11.X11Helper;
 import com.Axeryok.CocoaInput.plugin.IMEOperator;
 import com.Axeryok.CocoaInput.plugin.IMEReceiver;
 
@@ -23,10 +24,10 @@ public class LinuxIMEOperator implements IMEOperator {
 
         if (focused) {
             Focus.focus(this);
-            InputHelper.ActivateIC();
+            InputHelper.createActivateIC();
         } else {
             Focus.release(this);
-            InputHelper.DeactivateIC();
+            InputHelper.createInactiveIC();
         }
     }
 }
