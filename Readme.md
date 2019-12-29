@@ -1,15 +1,12 @@
 # KokoaLinux
 
-KokoaLinux is an IME solution for Minecraft under Linux, requiring [CocoaInput](https://www.curseforge.com/minecraft/mc-mods/cocoainput).  
-Based on [CocoaInputLinux](https://www.axer.jp/archives/61) and with the help of Axeryok's [blog](https://www.axer.jp/archives/59), I finally made this mod.  
+KokoaLinux is an IME solution for Minecraft under Linux, inspired by [CocoaInputLinux](https://www.axer.jp/archives/61).  
+
+With the help of Axeryok's [blog](https://www.axer.jp/archives/59), I finally made this mod.  
+
 It tweaks lwjgl when game starts. So it's much easier to install.
 
-
 This Mod is licensed under [MMPL](LICENSE), the same as CocoaInput.
-
-## Known issues
-- Type shortly. Don't type a whole sentence with your IME and input to Minecraft all at once, or it will **crash your game**(Tested with Mozc, maybe a CocoaInput bug).
-- If somewhere you input has length limit (for example, world name) and you continue typing with IME, what displays on the screen may be strange (seems caused by the implementation of CocoaInput to show underscore).
 
 ## Debug and Build
 ### Debug

@@ -18,18 +18,13 @@ void preeditDraw(XIC xic, XPointer clientData, XIMPreeditDrawCallbackStruct *s) 
     XFree(attr);
 }
 
-void setEmpty(XICCallback *cb) {
-    cb->client_data = NULL;
-    cb->callback = emptyCallback;
-}
-
 XICCallback empty, draw;
 
 XVaNestedList preeditCallbacksList() {
     empty.client_data = NULL;
     empty.callback = emptyCallback;
 
-    empty.client_data = NULL;
+    draw.client_data = NULL;
     draw.callback = preeditDraw;
     return XVaCreateNestedList(0, // DUMMY
                                XNPreeditStartCallback,

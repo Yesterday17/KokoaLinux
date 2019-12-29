@@ -10,8 +10,8 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.1.1"
-group = "cn.yesterday17"
+version = "1.2.0"
+group = "cn.yesterday17.kokoalinux"
 archivesBaseName = "kokoalinux"
 
 sourceCompatibility = targetCompatibility = '1.8'
