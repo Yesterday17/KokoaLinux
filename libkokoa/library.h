@@ -15,7 +15,7 @@
 #include <X11/keysym.h>
 #include <X11/Xlocale.h>
 
-void setCallback(int *(*c_draw)(int, int, int, short, int, char *, wchar_t *, int, int, int), void(*c_done)());
+void setDisplayPositionCallback(int *(*c_draw)());
 
 long createInactiveIC(long xim, long window);
 
