@@ -24,7 +24,7 @@ public class GuiFactory implements IModGuiFactory {
     @Override
     public GuiScreen createConfigGui(GuiScreen parentScreen) {
         return new GuiConfig(parentScreen,
-                Collections.singletonList(ConfigElement.from(KokoaConfig.class)),
+                ConfigElement.from(KokoaConfig.class).getChildElements(),
                 KokoaLinux.MOD_ID,
                 false,
                 false,
