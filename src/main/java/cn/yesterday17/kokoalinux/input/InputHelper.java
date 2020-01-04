@@ -1,61 +1,47 @@
 package cn.yesterday17.kokoalinux.input;
 
-import cn.yesterday17.kokoalinux.KokoaLinux;
-import cn.yesterday17.kokoalinux.display.DisplayHelper;
-import org.apache.logging.log4j.Level;
+import cn.yesterday17.kokoalinux.KokoaGlobal;
 
 public class InputHelper {
-    public static void createIC(boolean toActivate) {
-        long xic,
-                xim = DisplayHelper.getXIM(),
-                window = DisplayHelper.getCurrentWindow();
-        if (toActivate) {
-            xic = InputNative.instance.createActiveIC(xim, window);
-
-            if (xic == 0) {
-                // Current XIM is not available, so NULL is returned
-                // Sp close current XIM and open a new one
-                // Also, Locale is reset, So we MUST prepareLocale again
-                DisplayHelper.closeLWJGLIM();
-                InputHelper.prepareLocale();
-                xim = InputHelper.openIM();
-                xic = InputNative.instance.createActiveIC(xim, window);
-            }
-
-            KokoaLinux.logger.printf(Level.DEBUG, "Activate XIC: %d", xic);
-        } else {
-            xic = InputNative.instance.createInactiveIC(xim, window);
-            KokoaLinux.logger.printf(Level.DEBUG, "Inactivate XIC: %d", xic);
-        }
-        DisplayHelper.setXIC(xic);
-
-        // Unexpected situation
-        if (xic == 0) {
-            KokoaLinux.logger.error("Unexpected zero XIC when creating IC");
-            KokoaLinux.logger.printf(Level.ERROR, "XIM: %d", xim);
-            KokoaLinux.logger.printf(Level.ERROR, "Window: %d", window);
-        }
+    // Used by org.lwjgl.opengl.LinuxDisplay.incDisplay
+    public static void setDisplay(long display) {
+        InputNative.instance.setDisplay(display);
+        KokoaGlobal.display = display;
     }
 
-    public static void prepareLocale() {
-        InputNative.instance.setEmptyLocaleModifier();
-        InputNative.instance.setLocale();
+    // Used by org.lwjgl.opengl.LinuxDisplay.createWindow
+    public static long setWindow(long window) {
+        InputNative.instance.setWindow(window);
+        KokoaGlobal.window = window;
+        return window;
     }
 
-    public static void destroyIC() {
-        long xic = DisplayHelper.getXIC();
-        KokoaLinux.logger.printf(Level.DEBUG, "Destroy XIC pointer value: %d", xic);
-        InputNative.instance.destroyIC(xic);
+    // Used by org.lwjgl.opengl.LinuxKeyboard.<init>
+    public static long openIM(long display) {
+        InputNative.instance.prepareLocale();
+        KokoaGlobal.xim = InputNative.instance.openIM();
+        return KokoaGlobal.xim;
     }
 
-    public static long openIM() {
-        long xim = InputNative.instance.openIM(DisplayHelper.getDisplay());
-        DisplayHelper.setXIM(xim);
-        return xim;
+    // Used by org.lwjgl.opengl.LinuxKeyboard.<init>
+    public static long createIC(long xim, long window) {
+        KokoaGlobal.xic = InputNative.instance.createIC();
+        return KokoaGlobal.xic;
     }
 
-    public static void closeIM() {
-        InputNative.instance.closeIM(DisplayHelper.getXIM());
-        DisplayHelper.setXIM(0);
+    // Used by org.lwjgl.opengl.LinuxKeyboard.destroy
+    public static void closeIM(long xim) {
+        KokoaGlobal.xim = 0;
+        InputNative.instance.closeIM();
+    }
+
+    // Used by org.lwjgl.opengl.LinuxKeyboard.destroy
+    public static void destroyIC(long xic) {
+        KokoaGlobal.xic = 0;
+        InputNative.instance.destroyIC();
+    }
+
+    public static void toggleIC(boolean active) {
+        KokoaGlobal.xic = InputNative.instance.toggleIC(active ? 1 : 0);
     }
 }

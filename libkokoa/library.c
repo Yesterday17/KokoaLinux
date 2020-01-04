@@ -1,115 +1,122 @@
 #include "library.h"
 
-int *(*getDisplayPosition)();
+///////////////////////////////// Debug //////////////////////////////////
 
-void emptyCallback(XIC xic, XPointer clientData, XPointer data) {
-}
+bool DEBUG = false;
 
-void preeditDraw(XIC xic, XPointer clientData, XIMPreeditDrawCallbackStruct *s) {
-    int *array = getDisplayPosition();
-
-    fflush(stdout);
-    XPoint place;
-    place.x = array[0];
-    place.y = array[1];
-
-    XVaNestedList attr = XVaCreateNestedList(0, XNSpotLocation, &place, NULL);;
-    XSetICValues(xic, XNPreeditAttributes, attr, NULL);
-    XFree(attr);
-}
-
-XICCallback empty, draw;
-
-XVaNestedList preeditCallbacksList() {
-    empty.client_data = NULL;
-    empty.callback = emptyCallback;
-
-    draw.client_data = NULL;
-    draw.callback = preeditDraw;
-    return XVaCreateNestedList(0, // DUMMY
-                               XNPreeditStartCallback,
-                               &empty,
-                               XNPreeditDoneCallback,
-                               &empty,
-                               XNPreeditDrawCallback,
-                               &draw,
-                               XNPreeditCaretCallback,
-                               &empty,
-                               NULL); // FINAL
-}
-
-void setDisplayPositionCallback(int *(*c_draw)()) {
-    getDisplayPosition = c_draw;
-}
-
-long createInactiveIC(long xim, long window) {
-    XIC ic = XCreateIC(
-            (XIM) xim,
-            XNClientWindow,
-            (Window) window,
-            XNFocusWindow,
-            (Window) window,
-            XNInputStyle,
-            XIMPreeditNone | XIMStatusNone,
-            // XIMPreeditNothing|XIMStatusNothing,
-            NULL);
-    return (long) ic;
-}
-
-long createActiveIC(long xim, long window) {
-    XIC ic = XCreateIC(
-            (XIM) xim,
-            XNClientWindow,
-            (Window) window,
-            XNFocusWindow,
-            (Window) window,
-            XNInputStyle,
-            XIMPreeditCallbacks | XIMStatusNothing,
-            XNPreeditAttributes,
-            preeditCallbacksList(),
-            NULL);
-    return (long) ic;
-}
-
-void setLocale() {
-    setlocale(LC_CTYPE, "");
-}
-
-//////////////////////// X11 ////////////////////////
-/**
- * Clear Locale Modifier
- */
-void setEmptyLocaleModifier() {
-    XSetLocaleModifiers("");
-}
+///////////////////////////////// Global /////////////////////////////////
 
 /**
- * Destroy specified XIC
- * This function assumes xic is valid, and protects deleting NULL pointer.
- * @param xic Long form of XIC pointer
+ * Display will never change when game is running
+ * Window will change when switching between full screen mode and window mode
  */
-void destroyIC(long xic) {
-    if (xic != 0) {
-        XDestroyIC((XIC) xic);
+Display *display = nullptr;
+Window window = nullptr;
+XIM xim = nullptr;
+XIC xic = nullptr;
+
+/////////////////////////////// Set Values ///////////////////////////////
+
+void setDisplay(Pointer d) {
+    display = (Display *) d;
+
+    if (DEBUG) {
+        printf("[libkokoa] display: %p\n", display);
+        fflush(stdout);
     }
 }
+
+void setWindow(Pointer w) {
+    window = (Window) w;
+    if (DEBUG) {
+        printf("[libkokoa] window: %ld\n", window);
+        fflush(stdout);
+    }
+}
+
+//////////////////////// Replace LWJGL Functions /////////////////////////
 
 /**
  * Open IM for specified Display
- * @param display
- * @return Long form of opened XIM pointer.
+ * @return Pointer form of opened XIM pointer.
  */
-long openIM(long display) {
-    return (long) XOpenIM((Display *) display, NULL, NULL, NULL);
+Pointer openIM() {
+    xim = XOpenIM(display, NULL, NULL, NULL);
+    if (DEBUG) {
+        printf("[libkokoa] openIM: %p\n", xim);
+        fflush(stdout);
+    }
+    return (Pointer) xim;
+}
+
+Pointer createIC() {
+    xic = XCreateIC(
+            xim,
+            XNClientWindow,
+            window,
+            XNFocusWindow,
+            window,
+            XNInputStyle,
+            XIMPreeditNothing | XIMStatusNothing,
+            NULL);
+    if (DEBUG) {
+        printf("[libkokoa/DEBUG] createIC: %p\n", xic);
+        fflush(stdout);
+    }
+    return (Pointer) xic;
 }
 
 /**
- * Close specified XIM
+ * Close current XIM
  * This function assumes xim is valid, and protects deleting NULL pointer.
- * @param xim Long form of XIM pointer
  */
-void closeIM(long xim) {
-    if (xim != 0) {
-        XCloseIM((XIM) xim);
+void closeIM() {
+    if (xim != nullptr) {
+        XCloseIM(xim);
+        if (DEBUG) {
+            printf("[libkokoa/DEBUG]: XIM closed\n");
+            fflush(stdout);
+        }
+    } else {
+        printf("[libkokoa/ERROR]: XIM is nullptr\n");
+        fflush(stdout);
     }
+}
+
+/**
+ * Destroy current XIC
+ * This function assumes xic is valid, and protects deleting NULL pointer.
+ */
+void destroyIC() {
+    if (xic != nullptr) {
+        XDestroyIC(xic);
+        if (DEBUG) {
+            printf("[libkokoa/DEBUG]: XIC destroyed\n");
+            fflush(stdout);
+        }
+    } else {
+        printf("[libkokoa/ERROR]: XIC is nullptr\n");
+        fflush(stdout);
+    }
+}
+
+///////////////////////////////// Kokoa //////////////////////////////////
+
+Pointer toggleIC(long active) {
+    (active ? XSetICFocus : XUnsetICFocus)(xic);
+
+    if (DEBUG) {
+        printf("[libkokoa/DEBUG] toggleIC: %s\n", (active == true ? "focus" : "unfocus"));
+        fflush(stdout);
+    }
+    return (Pointer) xic;
+}
+
+void prepareLocale() {
+    XSetLocaleModifiers("");
+    setlocale(LC_CTYPE, "");
+}
+
+void setDebug(long debug) {
+    DEBUG = debug == 0 ? false : true;
 }

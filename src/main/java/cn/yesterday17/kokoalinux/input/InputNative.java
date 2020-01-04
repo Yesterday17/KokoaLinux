@@ -1,31 +1,32 @@
 package cn.yesterday17.kokoalinux.input;
 
-import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
 
 public interface InputNative extends Library {
     InputNative instance = Native.loadLibrary("kokoa", InputNative.class);
 
-    long createInactiveIC(long xim, long currentWindow);
+    /////////////////////////////////////
 
-    long createActiveIC(long xim, long currentWindow);
+    void setDisplay(long display);
 
-    void setLocale();
+    void setWindow(long window);
 
-    void setDisplayPositionCallback(DrawCallback draw);
+    /////////////////////////////////////
 
-    interface DrawCallback extends Callback {
-        Pointer invoke();
-    }
+    long openIM();
 
-    // X11
-    void destroyIC(long xic);
+    long createIC();
 
-    void closeIM(long xim);
+    void closeIM();
 
-    long openIM(long display);
+    void destroyIC();
 
-    void setEmptyLocaleModifier();
+    /////////////////////////////////////
+
+    long toggleIC(long active);
+
+    void prepareLocale();
+
+    void setDebug(long debug);
 }

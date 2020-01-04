@@ -10,48 +10,29 @@ public class GuiTextFieldTransformer implements IClassTransformer {
         if (transformedName.equals("net.minecraft.client.gui.GuiTextField")) {
             ClassReader cr = new ClassReader(basicClass);
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-            ClassVisitor cv = new GuiTextFieldVisitor(cw, name);
+            ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
+                @Override
+                public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
+                    MethodVisitor mv = cv.visitMethod(access, methodName, desc, signature, exceptions);
+                    String s = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(name, methodName, desc);
+                    if ("setFocused".equals(s) || "func_146195_b".equals(s) || "setFocused".equals(name) || "func_146195_b".equals(name)) {
+                        mv = new MethodVisitor(Opcodes.ASM5, mv) {
+                            @Override
+                            public void visitCode() {
+                                super.visitIntInsn(Opcodes.ALOAD, 0);
+                                super.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiTextField", "field_146213_o", "Z");
+                                super.visitIntInsn(Opcodes.ILOAD, 1);
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "cn/yesterday17/kokoalinux/gui/GuiChange", "focus", "(ZZ)V", false);
+                                super.visitCode();
+                            }
+                        };
+                    }
+                    return mv;
+                }
+            };
             cr.accept(cv, ClassReader.EXPAND_FRAMES);
             return cw.toByteArray();
         }
         return basicClass;
-    }
-
-    public static class GuiTextFieldVisitor extends ClassVisitor {
-        private String name;
-
-        GuiTextFieldVisitor(ClassVisitor cv, String name) {
-            super(Opcodes.ASM5, cv);
-            this.name = name;
-        }
-
-        @Override
-        public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-            MethodVisitor mv = cv.visitMethod(access, methodName, desc, signature, exceptions);
-            String s = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(name, methodName, desc);
-            if ("setFocused".equals(s) || "func_146195_b".equals(s) || "setFocused".equals(name) || "func_146195_b".equals(name)) {
-                mv = new GuiTextFieldSetFocusMethodAdapter(mv);
-            }
-            return mv;
-        }
-    }
-
-    public static class GuiTextFieldSetFocusMethodAdapter extends MethodVisitor {
-        GuiTextFieldSetFocusMethodAdapter(MethodVisitor mv) {
-            super(Opcodes.ASM5, mv);
-        }
-
-        @Override
-        public void visitCode() {
-            this.visitIntInsn(Opcodes.ALOAD, 0); // this -> stack
-            this.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiTextField", "field_146213_o", "Z"); // stack -> this ; old_focused -> stack
-            this.visitIntInsn(Opcodes.ILOAD, 1); // now_focused -> stack
-            super.visitMethodInsn(Opcodes.INVOKESTATIC,
-                    "cn/yesterday17/kokoalinux/gui/GuiChange",
-                    "focus",
-                    "(ZZ)V",
-                    false);
-            super.visitCode();
-        }
     }
 }

@@ -1,13 +1,11 @@
 package cn.yesterday17.kokoalinux.gui;
 
-import cn.yesterday17.kokoalinux.KokoaLinux;
 import cn.yesterday17.kokoalinux.input.InputHelper;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreenBook;
 import net.minecraft.client.gui.inventory.GuiEditSign;
 import net.minecraftforge.client.event.GuiOpenEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.logging.log4j.Level;
 
 public class GuiChange {
     @SubscribeEvent
@@ -27,15 +25,12 @@ public class GuiChange {
             // TODO: Force enable map
         }
 
-        InputHelper.destroyIC();
-        InputHelper.createIC(canInput);
+        InputHelper.toggleIC(canInput);
     }
 
     public static void focus(boolean old, boolean now) {
         if (old != now) {
-            InputHelper.destroyIC();
-            InputHelper.createIC(now);
-            KokoaLinux.logger.printf(Level.INFO, "Focus: %s", now ? "true" : "false");
+            InputHelper.toggleIC(now);
         }
     }
 }

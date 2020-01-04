@@ -7,6 +7,7 @@
 #define LIBKOKOA_LIBRARY_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
@@ -15,12 +16,7 @@
 #include <X11/keysym.h>
 #include <X11/Xlocale.h>
 
-void setDisplayPositionCallback(int *(*c_draw)());
-
-long createInactiveIC(long xim, long window);
-
-long createActiveIC(long xim, long window);
-
-void setLocale();
+typedef long Pointer;
+#define nullptr 0
 
 #endif //LIBKOKOA_LIBRARY_H
