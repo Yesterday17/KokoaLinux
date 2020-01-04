@@ -1,8 +1,27 @@
-#include "library.h"
+//////////////////////////////// Include /////////////////////////////////
+#include <stdio.h>
+#include <stdbool.h>
+
+#include <X11/X.h>
+#include <X11/Xlib.h>
+#include <X11/Xlocale.h>
+
+///////////////////////////////// Types //////////////////////////////////
+
+typedef long Pointer;
+#define nullptr 0
 
 ///////////////////////////////// Debug //////////////////////////////////
 
 bool DEBUG = false;
+
+void setDebug(long debug) {
+    if (DEBUG != (debug == 0 ? false : true)) {
+        DEBUG = debug == 0 ? false : true;
+        printf("[libkokoa/DEBUG] %sed debug mode\n", (DEBUG == true ? "enter" : "exit"));
+        fflush(stdout);
+    }
+}
 
 ///////////////////////////////// Global /////////////////////////////////
 
@@ -36,14 +55,10 @@ void setWindow(Pointer w) {
 
 //////////////////////// Replace LWJGL Functions /////////////////////////
 
-/**
- * Open IM for specified Display
- * @return Pointer form of opened XIM pointer.
- */
 Pointer openIM() {
     xim = XOpenIM(display, NULL, NULL, NULL);
     if (DEBUG) {
-        printf("[libkokoa] openIM: %p\n", xim);
+        printf("[libkokoa/DEBUG] openIM: %p\n", xim);
         fflush(stdout);
     }
     return (Pointer) xim;
@@ -66,10 +81,6 @@ Pointer createIC() {
     return (Pointer) xic;
 }
 
-/**
- * Close current XIM
- * This function assumes xim is valid, and protects deleting NULL pointer.
- */
 void closeIM() {
     if (xim != nullptr) {
         XCloseIM(xim);
@@ -83,10 +94,6 @@ void closeIM() {
     }
 }
 
-/**
- * Destroy current XIC
- * This function assumes xic is valid, and protects deleting NULL pointer.
- */
 void destroyIC() {
     if (xic != nullptr) {
         XDestroyIC(xic);
@@ -115,12 +122,4 @@ Pointer toggleIC(long active) {
 void prepareLocale() {
     XSetLocaleModifiers("");
     setlocale(LC_CTYPE, "");
-}
-
-void setDebug(long debug) {
-    if (DEBUG != (debug == 0 ? false : true)) {
-        DEBUG = debug == 0 ? false : true;
-        printf("[libkokoa/DEBUG] %sed debug mode\n", (DEBUG == true ? "enter" : "exit"));
-        fflush(stdout);
-    }
 }

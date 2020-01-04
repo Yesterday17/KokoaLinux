@@ -3,4 +3,4 @@ project(kokoa C)
 
 set(CMAKE_C_STANDARD 11)
 
-add_library(kokoa SHARED library.c library.h)
+add_library(kokoa SHARED library.c)
