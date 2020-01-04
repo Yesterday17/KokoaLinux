@@ -9,6 +9,7 @@ import java.util.Base64;
 import java.util.Set;
 
 public class LwjglTransformer implements IClassTransformer {
+    @SuppressWarnings("unchecked")
     public static void prepare(LaunchClassLoader classLoader) {
         try {
             // At this time, libraries like lwjgl has been loaded
@@ -47,9 +48,30 @@ public class LwjglTransformer implements IClassTransformer {
     @Override
     public byte[] transform(String name, String transformedName, byte[] basicClass) {
         switch (transformedName) {
-            case "org.lwjgl.opengl.LinuxEvent":
-                // TODO: ASM instead of base64
-                return LinuxEventTweak.getBytes();
+            case "org.lwjgl.opengl.LinuxEvent": {
+                ClassReader cr = new ClassReader(LinuxEventTweak.getBytes());
+                ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                ClassVisitor cv = new ClassVisitor(Opcodes.ASM5, cw) {
+                    @Override
+                    public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+                        MethodVisitor mv = cw.visitMethod(access, name, desc, signature, exceptions);
+                        if (name.equals("filterEventX")) {
+                            mv = new MethodVisitor(api, mv) {
+                                @Override
+                                public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+                                    if (name.equals("enableIME")) {
+                                        owner = "cn/yesterday17/kokoalinux/config/KokoaConfig";
+                                    }
+                                    super.visitFieldInsn(opcode, owner, name, desc);
+                                }
+                            };
+                        }
+                        return mv;
+                    }
+                };
+                cr.accept(cv, ClassReader.EXPAND_FRAMES);
+                return cw.toByteArray();
+            }
             case "org.lwjgl.opengl.LinuxDisplay": {
                 ClassReader cr = new ClassReader(basicClass);
                 ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -82,7 +104,7 @@ public class LwjglTransformer implements IClassTransformer {
                                         }
                                     }
                                 };
-//                                break;
+                                break;
                             case "decDisplay":
                                 mv = new MethodVisitor(Opcodes.ASM5, mv) {
                                     @Override
