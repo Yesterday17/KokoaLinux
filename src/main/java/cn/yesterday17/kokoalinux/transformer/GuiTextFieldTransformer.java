@@ -15,12 +15,12 @@ public class GuiTextFieldTransformer implements IClassTransformer {
                 public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
                     MethodVisitor mv = cv.visitMethod(access, methodName, desc, signature, exceptions);
                     String s = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(name, methodName, desc);
-                    if ("setFocused".equals(s) || "func_146195_b".equals(s) || "setFocused".equals(name) || "func_146195_b".equals(name)) {
+                    if (s.equals("func_146195_b") || s.equals("setFocused")) {
                         mv = new MethodVisitor(Opcodes.ASM5, mv) {
                             @Override
                             public void visitCode() {
                                 super.visitIntInsn(Opcodes.ALOAD, 0);
-                                super.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiTextField", "field_146213_o", "Z");
+                                super.visitFieldInsn(Opcodes.GETFIELD, "net/minecraft/client/gui/GuiTextField", s.equals("func_146195_b") ? "field_146213_o" : "isFocused", "Z");
                                 super.visitIntInsn(Opcodes.ILOAD, 1);
                                 super.visitMethodInsn(Opcodes.INVOKESTATIC, "cn/yesterday17/kokoalinux/gui/GuiChange", "focus", "(ZZ)V", false);
                                 super.visitCode();

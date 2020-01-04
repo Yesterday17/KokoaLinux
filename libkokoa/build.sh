@@ -1,0 +1,3 @@
+cd libkokoa
+
+cmake . && make

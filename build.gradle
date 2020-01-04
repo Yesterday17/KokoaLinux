@@ -52,3 +52,43 @@ processResources {
         exclude 'mcmod.info'
     }
 }
+
+task buildLibKokoa() {
+    def build = "libkokoa/build.sh".execute()
+    build.waitForProcessOutput(System.out, System.err)
+
+    def clean = "libkokoa/clean.sh".execute()
+    clean.waitForProcessOutput(System.out, System.err)
+}
+
+build {
+    doFirst {
+        buildLibKokoa
+    }
+}
+
+task preDebugRun() {
+    buildLibKokoa
+
+    def mkdir = "mkdir -p ./build/classes/java/main/linux-x86-64".execute()
+    mkdir.waitForProcessOutput(System.out, System.err)
+
+    def mv = "mv ./libkokoa/libkokoa.so ./build/classes/java/main/linux-x86-64/".execute()
+    mv.waitForProcessOutput(System.out, System.err)
+}
+
+ext.programParameters = [
+        "--tweakClass cn.yesterday17.kokoalinux.tweaker.KokoaTweaker"
+]
+
+idea.workspace.iws.withXml {
+    def runManager = it.asNode().component.find({ it.@name == 'RunManager' })
+    runManager.configuration.findAll({ it.@type == 'Application' }).each {
+        def mainClass = it.option.find({ it.@name == 'MAIN_CLASS_NAME' }).@value
+        if (mainClass == 'GradleStart') {
+            // Client-only mod
+            def paramArg = String.join(' ', programParameters)
+            it.option.find({ it.@name == 'PROGRAM_PARAMETERS' }).@value = paramArg
+        }
+    }
+}
