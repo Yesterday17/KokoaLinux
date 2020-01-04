@@ -16,8 +16,6 @@ public class KokoaLinux extends DummyModContainer {
     public static final String MOD_ID = "kokoalinux";
     public static final String NAME = "KokoaLinux";
 
-    public static Logger logger;
-
     public KokoaLinux() {
         super(new ModMetadata());
 
@@ -36,12 +34,6 @@ public class KokoaLinux extends DummyModContainer {
         return "cn.yesterday17.kokoalinux.config.GuiFactory";
     }
 
-//    @Override
-//    public Disableable canBeDisabled() {
-//        // Useless now
-//        return Disableable.YES;
-//    }
-
     @Override
     public boolean registerBus(EventBus bus, LoadController controller) {
         bus.register(this);
@@ -50,9 +42,6 @@ public class KokoaLinux extends DummyModContainer {
 
     @Subscribe
     public void preInit(FMLPreInitializationEvent event) {
-        logger = event.getModLog();
-        logger.getLevel();
-
         // Inject Config
         ConfigManager.inject();
     }
