@@ -1,6 +1,7 @@
 package cn.yesterday17.kokoalinux.config;
 
 import cn.yesterday17.kokoalinux.KokoaLinux;
+import cn.yesterday17.kokoalinux.input.InputHelper;
 import com.google.common.collect.Sets;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -55,6 +56,9 @@ public class ConfigManager {
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             e.printStackTrace();
         }
+
+        // Sync debug with libkokoa
+        InputHelper.setDebug();
     }
 
     @SubscribeEvent

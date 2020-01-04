@@ -118,5 +118,9 @@ void prepareLocale() {
 }
 
 void setDebug(long debug) {
-    DEBUG = debug == 0 ? false : true;
+    if (DEBUG != (debug == 0 ? false : true)) {
+        DEBUG = debug == 0 ? false : true;
+        printf("[libkokoa/DEBUG] %sed debug mode\n", (DEBUG == true ? "enter" : "exit"));
+        fflush(stdout);
+    }
 }
