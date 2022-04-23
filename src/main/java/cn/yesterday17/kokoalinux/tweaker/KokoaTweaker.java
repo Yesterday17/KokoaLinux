@@ -4,6 +4,7 @@ import cn.yesterday17.kokoalinux.transformer.LwjglTransformer;
 import net.minecraft.launchwrapper.ITweaker;
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import net.minecraftforge.fml.relauncher.FMLInjectionData;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.util.List;
@@ -15,6 +16,9 @@ public class KokoaTweaker implements ITweaker {
 
     @Override
     public void injectIntoClassLoader(LaunchClassLoader classLoader) {
+        if(!(SystemUtils.IS_OS_UNIX || SystemUtils.IS_OS_FREE_BSD || SystemUtils.IS_OS_NET_BSD || SystemUtils.IS_OS_OPEN_BSD)) {
+            return;
+        }
         // Prepare for Lwjgl Transformer
         LwjglTransformer.prepare(classLoader);
 
