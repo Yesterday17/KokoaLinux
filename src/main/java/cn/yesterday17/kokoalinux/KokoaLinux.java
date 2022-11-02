@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.Logger;
 
 public class KokoaLinux extends DummyModContainer {
@@ -49,7 +50,12 @@ public class KokoaLinux extends DummyModContainer {
     @Subscribe
     public void init(FMLInitializationEvent event) {
         // Subscribe events
-        MinecraftForge.EVENT_BUS.register(GuiChange.class);
+        if(SystemUtils.IS_OS_UNIX || SystemUtils.IS_OS_FREE_BSD || SystemUtils.IS_OS_NET_BSD || SystemUtils.IS_OS_OPEN_BSD) {
+            MinecraftForge.EVENT_BUS.register(GuiChange.class);
+        }
+        else {
+            System.out.println("KokoaLinux can only work on Linux or UNIX-like systems.");
+        }
         MinecraftForge.EVENT_BUS.register(ConfigManager.class);
     }
 }
